@@ -1,4 +1,4 @@
-# ls -la command in windows
+# ls -l command in windows
 
 Small executable that shows a list of the files in a folder along with some descriptions of it, made with NodeJs and its native functions.
 
