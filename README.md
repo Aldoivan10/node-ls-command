@@ -6,6 +6,8 @@ When you run the **ls -la** command on a folder on a Solaris OS you get a list w
 
 <img title="Solaris ls -l result" src="https://docs.oracle.com/cd/E19683-01/806-7612/images/Files.fig153.epsi.gif" alt="solaris-ls-l" data-align="center" width="582">
 
+So if we run the little program we will get the following output:
+
 ![Alt text](https://github.com/Aldoivan10/node-ls-command/blob/main/Screenshots/windows_result.png "Result on windows")
 
 
