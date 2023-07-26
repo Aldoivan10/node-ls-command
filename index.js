@@ -1,4 +1,5 @@
-import { readdir, stat } from 'node:fs/promises'
+import { readdir, lstat } from 'node:fs/promises'
+import { userInfo } from 'node:os'
 import { join } from 'node:path'
 import { argv, exit } from 'node:process'
 import pc from 'picocolors'
@@ -18,26 +19,34 @@ async function ls(folder)
 
     const filesPromises = files.map(async file => 
         {
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
             const filePath = join(folder, file)
             let fileStats
 
             try {
-                fileStats = await stat(filePath)
+                fileStats = await lstat(filePath)
             } catch {
                 console.error(`No se puede leer el archivo ${filePath}!`)
                 exit(1)
             }
-    
-            const type = pc.blue(fileStats.isLink ? 'l' : fileStats.isDir ? 'd' : '-')
+            
+            const type = pc.blue(fileStats.isSymbolicLink() ? 'l' : fileStats.isDirectory() ? 'd' : '-')
             const fileName = pc.white(file.padEnd(20));
             const permissions = unixPermissions(fileStats.mode)
-            const links  = pc.blue(fileStats.nlink);
+            const links  = pc.blue(fileStats.nlink.toString().padEnd(3));
+            const size = pc.yellow(fileStats.size.toString().padStart(15))
+            const date = new Date(fileStats.mtime)
+            const hour = date.getHours().toString().padStart(2,'0')
+            const minutes = date.getMinutes().toString().padStart(2,'0')
+            const day = date.getDate().toString().padStart(2,'0')
+            const strDate = pc.green(`${months[date.getMonth()]} ${day} ${hour}:${minutes}`)
 
-            return `${type}${permissions} ${links} ${getOwnerSid} ${fileStats.uid} ${fileName}`
+            return `${type}${permissions} ${links} ${userInfo().username} ${size} ${strDate} ${fileName}`
         })
     
     const filesInfo = await Promise.all(filesPromises)
-
+    
+    console.log(pc.magenta(`total ${files.length}`))
     filesInfo.forEach(fileInfo => console.log(fileInfo))
 }
 
@@ -68,6 +77,6 @@ function unixPermissions(mode)
                             pc.yellow( convertToPermissions(otherPermissions))
   
     return unixPermissions
-  }
+}
 
 ls(folder)
